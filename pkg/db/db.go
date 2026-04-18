@@ -2,52 +2,60 @@ package db
 
 import (
 	"database/sql"
+	"embed"
 	"fmt"
 	"log"
 	"os"
 
+	"github.com/pressly/goose/v3"
 	_ "github.com/lib/pq" // Postgres driver
 )
 
-func Connect() (*sql.DB, error) {
+//go:embed ../../migrations/*.sql
+var embedMigrations embed.FS
 
-	// Get PostgreSQL connection details from environment variables
+func Connect() (*sql.DB, error) {
+	// Get connection details
 	dbHost := os.Getenv("DB_HOST")
 	dbPort := os.Getenv("DB_PORT")
 	dbUser := os.Getenv("DB_USER")
 	dbPassword := os.Getenv("DB_PASSWORD")
 	dbName := os.Getenv("DB_NAME")
 
-	// Set defaults if not provided
-	if dbHost == "" {
-		dbHost = "localhost"
-	}
-	if dbPort == "" {
-		dbPort = "5432"
-	}
-	if dbUser == "" {
-		dbUser = "postgres"
-	}
-	if dbName == "" {
-		dbName = "postgres"
-	}
+	if dbHost == "" { dbHost = "localhost" }
+	if dbPort == "" { dbPort = "5432" }
+	if dbUser == "" { dbUser = "postgres" }
+	if dbName == "" { dbName = "postgres" }
 
-	// Build connection string
 	connStr := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		dbHost, dbPort, dbUser, dbPassword, dbName,
 	)
 
+	// Open Connection
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		return nil, err
 	}
-	// Check if the connection actually works
+
+	// Ping the database
 	if err := db.Ping(); err != nil {
 		return nil, err
 	}
 
-	log.Printf("Successfully connected to PostgreSQL database")
+	log.Println("Successfully connected to PostgreSQL database")
+
+	// TRIGGER MIGRATIONS (The "Automated" Part)
+	goose.SetBaseFS(embedMigrations)
+	if err := goose.SetDialect("postgres"); err != nil {
+		return nil, err
+	}
+
+	log.Println("Running database migrations...")
+	// Point to "../../migrations" because that's where the files live relative to this file
+	if err := goose.Up(db, "../../migrations"); err != nil {
+		return nil, fmt.Errorf("migration failed: %v", err)
+	}
 
 	return db, nil
 }

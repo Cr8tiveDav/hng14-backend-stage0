@@ -1,5 +1,7 @@
+-- +goose Up
+-- +goose StatementBegin
 CREATE TABLE IF NOT EXISTS user_profiles (
-    id UUID PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL UNIQUE,
     gender TEXT NOT NULL,
     gender_probability NUMERIC(3, 2),
@@ -10,3 +12,9 @@ CREATE TABLE IF NOT EXISTS user_profiles (
     country_probability NUMERIC(3, 2),
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+-- +goose StatementEnd
+
+-- +goose Down
+-- +goose StatementBegin
+DROP TABLE IF EXISTS user_profiles;
+-- +goose StatementEnd
