@@ -19,7 +19,6 @@ type Handler struct {
 	Repo *repository.ProfileRepository
 }
 
-
 // Dispatcher function for base handler
 func (h *Handler) ProfilesBaseHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
@@ -34,14 +33,14 @@ func (h *Handler) ProfilesBaseHandler(w http.ResponseWriter, r *http.Request) {
 
 // Dispatcher function for ID handler
 func (h *Handler) ProfileIDHandler(w http.ResponseWriter, r *http.Request) {
-    switch r.Method {
-    case http.MethodGet:
-        h.GetProfile(w, r)
-    case http.MethodDelete:
-        h.DeleteProfile(w, r)
-    default:
-        utils.HandleError(w, http.StatusMethodNotAllowed, "Method not allowed")
-    }
+	switch r.Method {
+	case http.MethodGet:
+		h.GetProfile(w, r)
+	case http.MethodDelete:
+		h.DeleteProfile(w, r)
+	default:
+		utils.HandleError(w, http.StatusMethodNotAllowed, "Method not allowed")
+	}
 }
 
 // Determine the gender of a name (Task 0)
@@ -229,13 +228,14 @@ func (h *Handler) GetProfile(w http.ResponseWriter, r *http.Request) {
 
 // Get profiles
 func (h *Handler) ListProfiles(w http.ResponseWriter, r *http.Request) {
-query := r.URL.Query()
+	query := r.URL.Query()
 	gender := query.Get("gender")
 	country := query.Get("country_id")
 	ageGroup := query.Get("age_group")
 
 	profiles, err := h.Repo.List(gender, country, ageGroup)
 	if err != nil {
+		fmt.Println("Error:",err)
 		utils.HandleError(w, http.StatusInternalServerError, "Failed to fetch profiles")
 		return
 	}
@@ -252,18 +252,18 @@ query := r.URL.Query()
 
 // Delete profile
 func (h *Handler) DeleteProfile(w http.ResponseWriter, r *http.Request) {
-    idStr := strings.TrimPrefix(r.URL.Path, "/api/profiles/")
-    id, err := uuid.Parse(idStr)
-    if err != nil {
-        utils.HandleError(w, http.StatusBadRequest, "Invalid UUID format")
-        return
-    }
+	idStr := strings.TrimPrefix(r.URL.Path, "/api/profiles/")
+	id, err := uuid.Parse(idStr)
+	if err != nil {
+		utils.HandleError(w, http.StatusBadRequest, "Invalid UUID format")
+		return
+	}
 
-    if err := h.Repo.Delete(id); err != nil {
-        utils.HandleError(w, http.StatusInternalServerError, "Failed to delete profile")
-        return
-    }
+	if err := h.Repo.Delete(id); err != nil {
+		utils.HandleError(w, http.StatusInternalServerError, "Failed to delete profile")
+		return
+	}
 
-    // No content on success
-    w.WriteHeader(http.StatusNoContent)
+	// No content on success
+	w.WriteHeader(http.StatusNoContent)
 }

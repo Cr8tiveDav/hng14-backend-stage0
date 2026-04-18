@@ -85,8 +85,8 @@ func (r *ProfileRepository) GetByName(name string) (*models.ApiResult, error) {
 }
 
 // Get all profiles in the database
-func (r *ProfileRepository) List(gender, country, ageGroup string) ([]models.ApiResult, error) {
-	query := `SELECT id, name, gender, age, age_group, country_id FROM user_profiles WHERE 1=1`
+func (r *ProfileRepository) List(gender, country, ageGroup string) ([]models.DataResponse, error) {
+	query := `SELECT name, gender, age, age_group, country_id FROM user_profiles WHERE 1=1`
 	var args []interface{}
 	counter := 1
 
@@ -112,12 +112,18 @@ func (r *ProfileRepository) List(gender, country, ageGroup string) ([]models.Api
 	}
 	defer rows.Close()
 
-	var results []models.ApiResult
+	var results []models.DataResponse
+	idCount := 1
 	for rows.Next() {
-		var p models.ApiResult
-		if err := rows.Scan(&p.ID, &p.Name, &p.Gender, &p.Age, &p.AgeGroup, &p.CountryID); err != nil {
+		var p models.DataResponse
+		err := rows.Scan(&p.Name, &p.Gender, &p.Age, &p.AgeGroup, &p.CountryID)
+		if err != nil {
 			return nil, err
 		}
+
+		// Set custom ID
+		p.ID = fmt.Sprintf("id-%d", idCount)
+		idCount++
 		results = append(results, p)
 	}
 	return results, nil

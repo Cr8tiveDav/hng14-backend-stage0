@@ -36,16 +36,28 @@ type ErrorResponse struct {
 
 // My API response
 type ApiResult struct {
-	ID                 uuid.UUID `json:"id"`
+	ID                 uuid.UUID `json:"id,omitempty"`
 	Name               string    `json:"name"`
 	Gender             string    `json:"gender"`
-	GenderProbability  float64   `json:"gender_probability"`
-	SampleSize         int64     `json:"sample_size"`
+	GenderProbability  float64   `json:"gender_probability,omitempty"`
+	SampleSize         int64     `json:"sample_size,omitempty"`
 	Age                int64     `json:"age"`
 	AgeGroup           string    `json:"age_group"`
 	CountryID          string    `json:"country_id"`
-	CountryProbability float64   `json:"country_probability"`
-	CreatedAt          string    `json:"created_at"`
+	CountryProbability float64   `json:"country_probability,omitempty"`
+	CreatedAt          string    `json:"created_at,omitempty"`
+}
+type DataResponse struct {
+	ID                 string  `json:"id,omitempty"`
+	Name               string  `json:"name"`
+	Gender             string  `json:"gender"`
+	GenderProbability  float64 `json:"gender_probability,omitempty"`
+	SampleSize         int64   `json:"sample_size,omitempty"`
+	Age                int64   `json:"age"`
+	AgeGroup           string  `json:"age_group"`
+	CountryID          string  `json:"country_id"`
+	CountryProbability float64 `json:"country_probability,omitempty"`
+	CreatedAt          string  `json:"created_at,omitempty"`
 }
 
 type ProfileResponse struct {

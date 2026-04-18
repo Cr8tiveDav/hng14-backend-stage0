@@ -40,7 +40,6 @@ func main() {
 	mux.HandleFunc("/api/profiles", h.ProfilesBaseHandler)
 	mux.HandleFunc("/api/profiles/", h.ProfileIDHandler)
 
-
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
