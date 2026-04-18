@@ -126,8 +126,17 @@ func (h *Handler) DetermineGender(w http.ResponseWriter, r *http.Request) {
 
 // Process and create profile (Task 1)
 func (h *Handler) CreateProfile(w http.ResponseWriter, r *http.Request) {
-	// Get the name parameter from the query string
-	name := r.URL.Query().Get("name")
+
+
+// Get name from request body
+	var req models.GenderizeRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		utils.HandleError(w, http.StatusBadRequest, "Missing or empty name")
+		return
+	}
+
+	name := req.Name
 
 	// Validate name parameter is not empty
 	if name == "" {
@@ -135,7 +144,7 @@ func (h *Handler) CreateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Validate name parameter is a string
-	_, err := strconv.Atoi(name)
+	_, err = strconv.Atoi(name)
 	if err == nil {
 		utils.HandleError(w, http.StatusUnprocessableEntity, "Name parameter must be a string")
 		return
