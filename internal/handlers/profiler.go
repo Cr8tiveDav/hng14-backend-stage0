@@ -251,6 +251,7 @@ func (h *Handler) ListProfiles(w http.ResponseWriter, r *http.Request) {
 
 	profilesResponse := models.ProfileResponse{
 		Status: "success",
+		Count: len(profiles),
 		Data:   profiles,
 	}
 
